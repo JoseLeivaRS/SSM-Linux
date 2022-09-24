@@ -4,16 +4,16 @@ detect_distro(){
   if [ -z $DISTRO ]; then
     DISTRO='unknown'
   fi
-  echo $DISTRO  #Added this to review output for testing
+  echo $DISTRO
 }
 
-RunningDistro=$(detect_distro)
+
+## Functions Install, Uninstall, get Status, test AWS Endpoints **Region is static **
 
 install_ssm(){
+  #Saves script into /tmp/ directory
   sudo curl -sL https://add-ons.manage.rackspace.com/bootstrap/azure/ssm_install.sh --output /tmp/ssm_install.sh  
-  #INSTALLOUTPUT=$( chmod +x /tmp/ssm_install.sh; sudo sh -s /tmp/ssm_install.sh )
-  # chmod +x /tmp/ssm_install.sh; sudo sh -s /tmp/ssm_install.sh
- # echo $INSTALLOUTPUT
+
   sudo /bin/bash /tmp/ssm_install.sh
 }
 
@@ -51,18 +51,24 @@ esac
 
 REGION="us-west-2"
 test_endpoints() {
-SSMEndPT=("ssm.$REGION.amazonaws.com" "ssmmessages.$REGION.amazonaws.com" "ec2messages.$REGION.amazonaws.com" "s3.$REGION.amazonaws.com" "add-ons.api.manage.rackspace.com" "add-ons.manage.rackspace.com")
-#TEST=@()
-#TESTOUTPUT=""
+  SSMEndPT=("ssm.$REGION.amazonaws.com" "ssmmessages.$REGION.amazonaws.com" "ec2messages.$REGION.amazonaws.com" "s3.$REGION.amazonaws.com" "add-ons.api.manage.rackspace.com" "add-ons.manage.rackspace.com")
+  #TEST=@()
+  #TESTOUTPUT=""
 
-for URL in ${SSMEndPT[@]}
- do
-    TEST=$(nc -vz $URL 443)
-    #$TESTOUTPUT="$TEST"
+  for URL in ${SSMEndPT[@]}
+  do
+      TEST=$(nc -vz $URL 443)
+      #$TESTOUTPUT="$TEST"
 
-    #echo $URL
-done
+      #echo $URL
+  done
 }
+
+
+#Logic will go here, these are place holders for testing , RunningDistro is set
+
+#Detects VM's Linux Distro & saves to $RunningDistro Variable
+RunningDistro=$(detect_distro)
 
 get_status
 test-test_endpoints
@@ -70,28 +76,3 @@ install_ssm
 get_status
 uninstall_ssm
 echo ""
-
-
-amazon-ssm-agent -register -clear
-
-
-
-#Region List git: https://github.com/RSS-Engineering/platform-services-common/blob/main/platform_services_common/common/region.py
- 
-
-
-# Notes and samples
-:'
-
-DB_AWS_ZONE=('us-east-2a' 'us-west-1a' 'eu-central-1a')
- 
-for zone in "${DB_AWS_ZONE[@]}"
-do
-  echo "Creating rds (DB) server in $zone, please wait ..."
-
-done
-
-
-40.124.181.96
-
-'
