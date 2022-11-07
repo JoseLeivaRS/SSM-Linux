@@ -20,11 +20,11 @@ install_ssm(){
 uninstall_ssm(){
   case $RunningDistro in 
     Centos )
-    echo running Centos .... Uninstalling
+    echo -e "\nrunning Centos .... Uninstalling"
       sudo yum erase amazon-ssm-agent --assumeyes
     ;;
     Ubuntu )
-    echo Running Ubuntu .... Uninstalling
+    echo -e "\nRunning Ubuntu .... Uninstalling"
     sudo dpkg -r amazon-ssm-agent
     ;;
     * )
@@ -36,11 +36,11 @@ esac
 get_status(){
   case $RunningDistro in
   Centos )
-  echo Running $RunningDistro ... Checking status
+  echo -e "\nRunning $RunningDistro ... Checking status"
     sudo systemctl status --no-pager amazon-ssm-agent
   ;;
   Ubuntu )
-  echo Running $RunningDistro ... Checking status
+  echo -e "\nRunning $RunningDistro ... Checking status"
     sudo systemctl status --no-pager amazon-ssm-agent
   ;;
   * )
@@ -53,26 +53,55 @@ REGION="us-west-2"
 test_endpoints() {
   SSMEndPT=("ssm.$REGION.amazonaws.com" "ssmmessages.$REGION.amazonaws.com" "ec2messages.$REGION.amazonaws.com" "s3.$REGION.amazonaws.com" "add-ons.api.manage.rackspace.com" "add-ons.manage.rackspace.com")
   #TEST=@()
-  #TESTOUTPUT=""
+  TESTOUTPUT=""
 
   for URL in ${SSMEndPT[@]}
   do
-      TEST=$(nc -vz $URL 443)
-      #$TESTOUTPUT="$TEST"
-
-      #echo $URL
+       if ! nc -dvzw1 "${URL}" 443 ; then
+       	TESTOUTPUT+="failed"$'\n'
+       else
+       	TESTOUTPUT+="succeeded"$'\n'
+      fi
   done
 }
 
+get_ssmState() {
+  SSMState=$(systemctl show -p ActiveState amazon-ssm-agent | cut -d'=' -f2)
+  echo $SSMState
+}
 
 #Logic will go here, these are place holders for testing , RunningDistro is set
 
 #Detects VM's Linux Distro & saves to $RunningDistro Variable
 RunningDistro=$(detect_distro)
 
-get_status
-test-test_endpoints
-install_ssm
-get_status
-uninstall_ssm
-echo ""
+SSMStatus=$(get_ssmState)
+TEST_ENDPT=$(test_endpoints)
+if grep -q "failed" <<< "$TEST_ENDPT"; then
+    echo -e "\nCannot resolve SSM endpoints, internet and/or DNS maynot be resolving"
+    exit 1
+else
+    echo -e "\nRunning Remediation Script..."
+    case $SSMStatus in 
+    inactive )
+      uninstall_ssm
+      install_ssm
+    ;;
+    activating )
+      uninstall_ssm
+      install_ssm
+    ;;
+    active )
+      uninstall_ssm
+      install_ssm
+    ;;
+    "" )
+      install_ssm
+    ;;
+    esac
+fi
+
+
+
+
+
