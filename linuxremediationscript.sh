@@ -20,11 +20,11 @@ install_ssm(){
 uninstall_ssm(){
   case $RunningDistro in 
     Centos )
-    echo -e "\nrunning Centos .... Uninstalling"
+    echo -e "\nrunning Centos .... Uninstalling \n"
       sudo yum erase amazon-ssm-agent --assumeyes
     ;;
     Ubuntu )
-    echo -e "\nRunning Ubuntu .... Uninstalling"
+    echo -e "\nRunning Ubuntu .... Uninstalling \n"
     sudo dpkg -r amazon-ssm-agent
     ;;
     * )
@@ -36,11 +36,11 @@ esac
 get_status(){
   case $RunningDistro in
   Centos )
-  echo -e "\nRunning $RunningDistro ... Checking status"
+  echo -e "\nRunning $RunningDistro ... Checking status \n"
     sudo systemctl status --no-pager amazon-ssm-agent
   ;;
   Ubuntu )
-  echo -e "\nRunning $RunningDistro ... Checking status"
+  echo -e "\nRunning $RunningDistro ... Checking status \n"
     sudo systemctl status --no-pager amazon-ssm-agent
   ;;
   * )
@@ -78,7 +78,7 @@ RunningDistro=$(detect_distro)
 SSMStatus=$(get_ssmState)
 TEST_ENDPT=$(test_endpoints)
 if grep -q "failed" <<< "$TEST_ENDPT"; then
-    echo -e "\nCannot resolve SSM endpoints, internet and/or DNS maynot be resolving"
+    echo -e "\n****Cannot resolve SSM endpoints, internet and/or DNS maynot be resolving**** \n"
     exit 1
 else
     echo -e "\nRunning Remediation Script..."
