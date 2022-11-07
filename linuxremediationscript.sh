@@ -57,7 +57,7 @@ test_endpoints() {
 
   for URL in ${SSMEndPT[@]}
   do
-       if ! nc -dvzw1 "${URL}" 443 ; then
+       if ! nc -vzw1 "${URL}" 443 ; then
        	TESTOUTPUT+="failed"$'\n'
        else
        	TESTOUTPUT+="succeeded"$'\n'
